@@ -3,13 +3,29 @@ where
 
 import Data.List (genericLength, genericIndex)
 import Data.Maybe (isNothing, isJust)
+import qualified Data.Default as Def -- cabal install data-default
 
 type Grid = [GridRow]
 type GridRow = [GridCell]
 data GridCell = GridCell { mine :: MineCell
                          , marking :: Marking
                          } deriving (Eq, Show)
+-- http://byorgey.wordpress.com/2010/04/03/haskell-anti-pattern-incremental-ad-hoc-parameter-abstraction/
+instance Def.Default GridCell where
+  def = GridCell False Normal
 
+newGridCell :: MineCell -> GridCell
+newGridCell m = Def.def {mine = m}
+
+minesToGrid :: MineGrid -> Grid
+minesToGrid = (map . map) newGridCell
+
+-- Lossy transformation.
+gridToMines :: Grid -> MineGrid
+gridToMines = (map . map) mine
+
+type MineGrid = [MineGridRow]
+type MineGridRow = [MineCell]
 type MineCell = Bool
 
 data Marking = Flag | QuestionMark | Normal | Revealed deriving (Eq, Show)
