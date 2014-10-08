@@ -13,7 +13,7 @@ beginnerSettings = Settings (9,9) 10
 intermediateSettings = Settings (16,16) 40
 advancedSettings = Settings (16,30) 99
 
-generateMineGrid :: F.MineGrid
+generateMineGrid :: Settings -> F.MineGrid
 generateMineGrid = undefined
 
 main :: IO ()
