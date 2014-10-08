@@ -7,7 +7,7 @@ type Size = (Integer,Integer)
 
 data Settings = Settings { size :: Size
                          , mineCount :: Integer
-                         }
+                         } deriving (Eq, Show)
 
 beginnerSettings = Settings (9,9) 10
 intermediateSettings = Settings (16,16) 40
