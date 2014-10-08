@@ -1,9 +1,7 @@
 module Gen
-( generateMineGrid
-) 
 where
 
-import Func (MineGrid)
+import qualified Func as F
 
 type Size = (Integer,Integer)
 
@@ -11,7 +9,7 @@ data Settings = Settings { size :: Size
                          , mineCount :: Integer
                          }
 
-generateMineGrid :: MineGrid
+generateMineGrid :: F.MineGrid
 generateMineGrid = undefined
 
 main :: IO ()
