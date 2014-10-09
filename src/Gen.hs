@@ -47,6 +47,17 @@ shuffle xs = do (chosen,rest) <- chooseRandom xs
                 shuffledRest <- shuffle rest
                 return (chosen:shuffledRest)
 
+unshuffledGeneratedMines :: Settings -> [F.MineCell]
+unshuffledGeneratedMines (Settings (x,y) mineCount) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate mineCount True)]
+  where
+    paddingCount :: Integer
+    paddingCount = totalNumberOfCells - mineCount
+    totalNumberOfCells:: Integer
+    totalNumberOfCells = x*y
+
+shuffledGeneratedMines :: Settings -> IO [F.MineCell]
+shuffledGeneratedMines settings = shuffle $ unshuffledGeneratedMines settings
+
 generateMineGrid :: Settings -> F.MineGrid
 generateMineGrid = undefined
 
