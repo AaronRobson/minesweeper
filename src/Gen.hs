@@ -58,6 +58,14 @@ unshuffledGeneratedMines (Settings (x,y) mineCount) = concat [(L.genericReplicat
 shuffledGeneratedMines :: Settings -> IO [F.MineCell]
 shuffledGeneratedMines settings = shuffle $ unshuffledGeneratedMines settings
 
+gridify :: Integral i => i -> [a] -> [[a]]
+gridify width _
+  | width <= 0 = error "Strictly positive width required."
+gridify _ [] = []
+gridify width xs = firstRow:(gridify width rest)
+  where
+    (firstRow, rest) = L.genericSplitAt width xs
+
 generateMineGrid :: Settings -> F.MineGrid
 generateMineGrid = undefined
 
