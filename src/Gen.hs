@@ -66,8 +66,15 @@ gridify width xs = firstRow:(gridify width rest)
   where
     (firstRow, rest) = L.genericSplitAt width xs
 
-generateMineGrid :: Settings -> F.MineGrid
-generateMineGrid = undefined
+generateMineGrid :: Settings -> IO F.MineGrid
+generateMineGrid settings = do minesList <- shuffledGeneratedMines settings
+                               return $ gridify width minesList
+  where
+    Settings (width,_) _ = settings
 
 main :: IO ()
 main = do putStrLn "Generator of Minesweeper Grids."
+          putStrLn ""
+          putStrLn "Example of a random beginner grid:"
+          randomGrid <- generateMineGrid beginnerSettings
+          print randomGrid
