@@ -40,6 +40,13 @@ chooseRandom xs = do index <- randomIndex
     randomIndex :: IO Integer
     randomIndex = R.randomRIO (0, pred $ genericLength xs)
 
+shuffle :: [a] -> IO [a]
+shuffle [] = return []
+shuffle [x] = return [x]
+shuffle xs = do (chosen,rest) <- chooseRandom xs
+                shuffledRest <- shuffle rest
+                return (chosen:shuffledRest)
+
 generateMineGrid :: Settings -> F.MineGrid
 generateMineGrid = undefined
 
