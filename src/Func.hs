@@ -2,7 +2,6 @@ module Func
 where
 
 import Data.List (genericLength, genericIndex)
-import Data.Maybe (isNothing, isJust)
 import qualified Data.Default as Def -- cabal install data-default
 
 type Grid = [GridRow]
@@ -77,14 +76,14 @@ numberOfMinesAround grid (x,y) = cellsThatAreMines
     cellsThatAreMines = genericLength $ filter maybeCellIsMine possibleCells
 
 findCell :: Grid -> Location -> Maybe GridCell
-findCell grid (x,y) = findRow grid >>= findCell
+findCell grid (x,y) = findRow >>= findCellInRow
   where
-    findRow :: Grid -> Maybe GridRow
-    findRow grid
+    findRow :: Maybe GridRow
+    findRow
       | (y <= 0) && (y < genericLength grid) = Just (genericIndex grid y)
       | otherwise = Nothing
-    findCell :: GridRow -> Maybe GridCell
-    findCell gridRow
+    findCellInRow :: GridRow -> Maybe GridCell
+    findCellInRow gridRow
       | (x <= 0) && (x < genericLength gridRow) = Just (genericIndex gridRow x)
       | otherwise = Nothing
 
