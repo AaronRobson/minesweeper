@@ -106,7 +106,10 @@ main = do putStrLn "The core functionality of the program is in this module."
           putStrLn $ numMinesAroundInfo (1,1)
           putStrLn $ numMinesAroundInfo (0,1)
   where
-    mg =  [[True,True,True],[True,True,True],[True,True,True]]
+    mg = [ [True,True,True]
+         , [True,True,True]
+         , [True,True,True]
+         ]
     g = minesToGrid mg
     findCellInfo :: Location -> String
     findCellInfo location = (show location) ++ " is: " ++ (show $ findCell g location)
