@@ -54,7 +54,7 @@ finished g = InProgress /= progress g
 type Location = (Integer,Integer)
 
 numberOfMinesAround :: Grid -> Location -> Integer
-numberOfMinesAround grid (x,y) = genericLength . (filter $ locationIsMine grid) $ locationsAround --cellsThatAreMines
+numberOfMinesAround grid (x,y) = genericLength . (filter $ locationIsMine grid) $ locationsAround
   where
     locationsAround :: [Location]
     locationsAround =
