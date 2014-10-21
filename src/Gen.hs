@@ -50,12 +50,10 @@ unshuffledGeneratedMines :: Settings -> [F.MineCell]
 unshuffledGeneratedMines (Settings (x,y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
   where
     paddingCount :: Integer
-    paddingCount = totalNumberOfCells - n
-    totalNumberOfCells:: Integer
-    totalNumberOfCells = x*y
+    paddingCount = x*y - n
 
 shuffledGeneratedMines :: (R.RandomGen r) => r -> Settings -> [F.MineCell]
-shuffledGeneratedMines gen settings = shuffle gen $ unshuffledGeneratedMines settings
+shuffledGeneratedMines gen = (shuffle gen) . unshuffledGeneratedMines
 
 gridify :: Integral i => i -> [a] -> [[a]]
 gridify width _
@@ -66,13 +64,11 @@ gridify width xs = firstRow:(gridify width rest)
     (firstRow, rest) = L.genericSplitAt width xs
 
 generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Settings -> F.MineGrid
-generateMineGridFromRandomGen gen settings = gridify width minesList
-  where Settings (width,_) _ = settings
-        minesList = shuffledGeneratedMines gen settings
+generateMineGridFromRandomGen gen settings@(Settings (width,_) _) = gridify width minesList
+  where minesList = shuffledGeneratedMines gen settings
 
 generateMineGridFromSeed :: Int -> Settings -> F.MineGrid
-generateMineGridFromSeed seed settings = generateMineGridFromRandomGen gen settings
-  where gen = R.mkStdGen seed
+generateMineGridFromSeed = generateMineGridFromRandomGen . R.mkStdGen
 
 generateMineGrid :: Settings -> IO F.MineGrid
 generateMineGrid settings = do gen <- R.newStdGen

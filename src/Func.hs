@@ -54,7 +54,7 @@ finished g = InProgress /= progress g
 type Location = (Integer,Integer)
 
 numberOfMinesAround :: Grid -> Location -> Integer
-numberOfMinesAround grid (x,y) = cellsThatAreMines
+numberOfMinesAround grid (x,y) = genericLength . (filter $ locationIsMine grid) $ locationsAround --cellsThatAreMines
   where
     locationsAround :: [Location]
     locationsAround =
@@ -70,10 +70,6 @@ numberOfMinesAround grid (x,y) = cellsThatAreMines
       , (x+0,y+1)
       , (x+1,y+1)
       ]
-    possibleCells :: [Maybe GridCell]
-    possibleCells = map (findCell grid) locationsAround
-    cellsThatAreMines :: Integer
-    cellsThatAreMines = genericLength $ filter maybeCellIsMine possibleCells
 
 findCell :: Grid -> Location -> Maybe GridCell
 findCell grid (x,y) = findRow >>= findCellInRow
