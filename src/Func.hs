@@ -80,11 +80,11 @@ findCell grid (x,y) = findRow >>= findCellInRow
   where
     findRow :: Maybe GridRow
     findRow
-      | (y <= 0) && (y < genericLength grid) = Just (genericIndex grid y)
+      | (0 <= y) && (y < genericLength grid) = Just (genericIndex grid y)
       | otherwise = Nothing
     findCellInRow :: GridRow -> Maybe GridCell
     findCellInRow gridRow
-      | (x <= 0) && (x < genericLength gridRow) = Just (genericIndex gridRow x)
+      | (0 <= x) && (x < genericLength gridRow) = Just (genericIndex gridRow x)
       | otherwise = Nothing
 
 locationIsMine :: Grid -> Location -> Bool
@@ -98,3 +98,21 @@ maybeCellIsMine Nothing = False
 
 main :: IO ()
 main = do putStrLn "The core functionality of the program is in this module."
+          putStrLn ""
+          putStr "Grid: "
+          putStrLn $ show mg
+          putStrLn $ findCellInfo ((-1),(-1))
+          putStrLn $ findCellInfo (0,0)
+          putStrLn $ findCellInfo (0,1)
+          putStrLn $ findCellInfo (0,1)
+          putStrLn $ findCellInfo (2,2)
+          putStrLn $ findCellInfo (3,3)
+          putStrLn $ numMinesAroundInfo (1,1)
+          putStrLn $ numMinesAroundInfo (0,1)
+  where
+    mg =  [[True,True,True],[True,True,True],[True,True,True]]
+    g = minesToGrid mg
+    findCellInfo :: Location -> String
+    findCellInfo location = (show location) ++ " is: " ++ (show $ findCell g location)
+    numMinesAroundInfo :: Location -> String
+    numMinesAroundInfo location = (show location) ++ " has this many mines around it: " ++ (show $ numberOfMinesAround g location)
