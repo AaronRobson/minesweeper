@@ -18,5 +18,5 @@ cabal-version:       >=1.8
 executable minesweeper
   -- main-is:             
   -- other-modules:       
-  build-depends:       base ==4.6.*, random ==1.0.*
+  build-depends:       base ==4.6.*, random ==1.0.*, data-default >=0.5.3
   hs-source-dirs:      src
