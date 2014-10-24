@@ -12,7 +12,9 @@ data Difficulty = Difficulty { size :: Size
                              , mineCount :: Integer
                              } deriving (Eq, Show)
 
-data Settings = Settings { seed :: Int
+type Seed = Int
+
+data Settings = Settings { seed :: Seed
                          , difficulty :: Difficulty
                          }
 
@@ -71,7 +73,7 @@ generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGri
 generateMineGridFromRandomGen gen d@(Difficulty (width,_) _) = gridify width minesList
   where minesList = shuffledGeneratedMines gen d
 
-generateMineGridFromDifficulty :: Maybe Int -> Difficulty -> IO F.MineGrid
+generateMineGridFromDifficulty :: Maybe Seed -> Difficulty -> IO F.MineGrid
 generateMineGridFromDifficulty mSeed d = do
   settings <- settingsMaybeSeed mSeed d
   return $ generateMineGrid settings
@@ -79,20 +81,20 @@ generateMineGridFromDifficulty mSeed d = do
 generateMineGrid :: Settings -> F.MineGrid
 generateMineGrid (Settings s d) = generateMineGridFromRandomGen (makeRandomGeneratorFromSeed s) d
 
-randomSeed :: IO Int
+randomSeed :: IO Seed
 randomSeed = R.randomIO
 
-ensureSeed :: Maybe Int -> IO Int
+ensureSeed :: Maybe Seed -> IO Seed
 ensureSeed mSeed = case mSeed of
                      Just s -> return s
                      Nothing -> randomSeed
 
-settingsMaybeSeed :: Maybe Int -> Difficulty -> IO Settings
+settingsMaybeSeed :: Maybe Seed -> Difficulty -> IO Settings
 settingsMaybeSeed mSeed d = do
   s <- ensureSeed mSeed
   return $ Settings s d
 
-makeRandomGeneratorFromSeed :: Int -> R.StdGen
+makeRandomGeneratorFromSeed :: Seed -> R.StdGen
 makeRandomGeneratorFromSeed = R.mkStdGen
 
 main :: IO ()

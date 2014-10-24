@@ -26,16 +26,16 @@ chooseDifficulty = do
              Just difficulty -> difficulty
              Nothing -> G.beginnerDifficulty
 
-validateSeed :: String -> Maybe Int
-validateSeed s = R.readMaybe s :: Maybe Int
+validateSeed :: String -> Maybe G.Seed
+validateSeed s = R.readMaybe s :: Maybe G.Seed
 
-chooseSeedMaybe :: IO (Maybe Int)
+chooseSeedMaybe :: IO (Maybe G.Seed)
 chooseSeedMaybe = do
   putStr "Enter a number for a seed or blank for a random one: "
   seedStr <- getLine
   return $ validateSeed seedStr
 
-chooseSeed :: IO Int
+chooseSeed :: IO G.Seed
 chooseSeed = chooseSeedMaybe >>= G.ensureSeed
 
 main :: IO ()
