@@ -7,7 +7,10 @@ import qualified System.Random as R
 import qualified Func as F
 
 data Size = Size { width, height :: Integer
-                 } deriving (Eq, Show)
+                 } deriving (Eq)
+
+instance Show Size where
+  show (Size w h) = show w ++ "x" ++ show h
 
 data Difficulty = Difficulty { size :: Size
                              , mineCount :: Integer
