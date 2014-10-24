@@ -67,21 +67,30 @@ generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Settings -> F.MineGrid
 generateMineGridFromRandomGen gen settings@(Settings (width,_) _) = gridify width minesList
   where minesList = shuffledGeneratedMines gen settings
 
-generateMineGridFromSeed :: Int -> Settings -> F.MineGrid
-generateMineGridFromSeed = generateMineGridFromRandomGen . R.mkStdGen
+generateMineGrid :: Maybe Int -> Settings -> IO F.MineGrid
+generateMineGrid mSeed settings = do
+  seed <- ensureSeed mSeed
+  return $ generateMineGridFromRandomGen (makeRandomGeneratorFromSeed seed) settings
 
-generateMineGrid :: Settings -> IO F.MineGrid
-generateMineGrid settings = do gen <- R.newStdGen
-                               return $ generateMineGridFromRandomGen gen settings
+randomSeed :: IO Int
+randomSeed = R.randomIO
+
+ensureSeed :: Maybe Int -> IO Int
+ensureSeed mSeed = case mSeed of
+                     Just i -> return i
+                     Nothing -> randomSeed
+
+makeRandomGeneratorFromSeed :: Int -> R.StdGen
+makeRandomGeneratorFromSeed = R.mkStdGen
 
 main :: IO ()
 main = do putStrLn "Generator of Minesweeper Grids."
           putStrLn ""
           putStrLn "Example of a random beginner grid:"
-          randomGrid <- generateMineGrid beginnerSettings
+          randomGrid <- generateMineGrid Nothing beginnerSettings
           print randomGrid
           putStrLn ""
           putStrLn $ "Example of a beginner grid with seed of '" ++ (show seed) ++ "':"
+          seededGrid <- generateMineGrid (Just seed) beginnerSettings
           print seededGrid
   where seed = 42
-        seededGrid = generateMineGridFromSeed seed beginnerSettings
