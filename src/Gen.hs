@@ -6,7 +6,8 @@ import qualified System.Random as R
 
 import qualified Func as F
 
-type Size = (Integer,Integer)
+data Size = Size { width, height :: Integer
+                 } deriving (Eq, Show)
 
 data Difficulty = Difficulty { size :: Size
                              , mineCount :: Integer
@@ -19,11 +20,11 @@ data Settings = Settings { seed :: Seed
                          }
 
 beginnerDifficulty :: Difficulty
-beginnerDifficulty = Difficulty (9,9) 10
+beginnerDifficulty = Difficulty (Size 9 9) 10
 intermediateDifficulty :: Difficulty
-intermediateDifficulty = Difficulty (16,16) 40
+intermediateDifficulty = Difficulty (Size 16 16) 40
 advancedDifficulty :: Difficulty
-advancedDifficulty = Difficulty (16,30) 99
+advancedDifficulty = Difficulty (Size 16 30) 99
 
 -- Return the chosen element and the remainder of the list in a tuple.
 chooseIndex :: [a] -> Integer -> (a,[a])
@@ -53,7 +54,7 @@ shuffle gen xs = chosen:shuffledRest
     shuffledRest = shuffle newGen rest
 
 unshuffledGeneratedMines :: Difficulty -> [F.MineCell]
-unshuffledGeneratedMines (Difficulty (x,y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
+unshuffledGeneratedMines (Difficulty (Size x y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
   where
     paddingCount :: Integer
     paddingCount = x*y - n
@@ -62,15 +63,15 @@ shuffledGeneratedMines :: (R.RandomGen r) => r -> Difficulty -> [F.MineCell]
 shuffledGeneratedMines gen = (shuffle gen) . unshuffledGeneratedMines
 
 gridify :: Integral i => i -> [a] -> [[a]]
-gridify width _
-  | width <= 0 = error "Strictly positive width required."
+gridify w _
+  | w <= 0 = error "Strictly positive width required."
 gridify _ [] = []
-gridify width xs = firstRow:(gridify width rest)
+gridify w xs = firstRow:(gridify w rest)
   where
-    (firstRow, rest) = L.genericSplitAt width xs
+    (firstRow, rest) = L.genericSplitAt w xs
 
 generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGrid
-generateMineGridFromRandomGen gen d@(Difficulty (width,_) _) = gridify width minesList
+generateMineGridFromRandomGen gen d@(Difficulty (Size w _) _) = gridify w minesList
   where minesList = shuffledGeneratedMines gen d
 
 generateMineGridFromDifficulty :: Maybe Seed -> Difficulty -> IO F.MineGrid
