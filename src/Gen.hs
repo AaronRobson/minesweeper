@@ -71,18 +71,26 @@ generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGri
 generateMineGridFromRandomGen gen d@(Difficulty (width,_) _) = gridify width minesList
   where minesList = shuffledGeneratedMines gen d
 
-generateMineGrid :: Maybe Int -> Difficulty -> IO F.MineGrid
-generateMineGrid mSeed d = do
-  s <- ensureSeed mSeed
-  return $ generateMineGridFromRandomGen (makeRandomGeneratorFromSeed s) d
+generateMineGridFromDifficulty :: Maybe Int -> Difficulty -> IO F.MineGrid
+generateMineGridFromDifficulty mSeed d = do
+  settings <- settingsMaybeSeed mSeed d
+  return $ generateMineGrid settings
+
+generateMineGrid :: Settings -> F.MineGrid
+generateMineGrid (Settings s d) = generateMineGridFromRandomGen (makeRandomGeneratorFromSeed s) d
 
 randomSeed :: IO Int
 randomSeed = R.randomIO
 
 ensureSeed :: Maybe Int -> IO Int
 ensureSeed mSeed = case mSeed of
-                     Just i -> return i
+                     Just s -> return s
                      Nothing -> randomSeed
+
+settingsMaybeSeed :: Maybe Int -> Difficulty -> IO Settings
+settingsMaybeSeed mSeed d = do
+  s <- ensureSeed mSeed
+  return $ Settings s d
 
 makeRandomGeneratorFromSeed :: Int -> R.StdGen
 makeRandomGeneratorFromSeed = R.mkStdGen
@@ -91,10 +99,10 @@ main :: IO ()
 main = do putStrLn "Generator of Minesweeper Grids."
           putStrLn ""
           putStrLn "Example of a random beginner grid:"
-          randomGrid <- generateMineGrid Nothing beginnerDifficulty
+          randomGrid <- generateMineGridFromDifficulty Nothing beginnerDifficulty
           print randomGrid
           putStrLn ""
           putStrLn $ "Example of a beginner grid with seed of '" ++ (show givenSeed) ++ "':"
-          seededGrid <- generateMineGrid (Just givenSeed) beginnerDifficulty
+          seededGrid <- generateMineGridFromDifficulty (Just givenSeed) beginnerDifficulty
           print seededGrid
   where givenSeed = 42
