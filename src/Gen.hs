@@ -8,16 +8,16 @@ import qualified Func as F
 
 type Size = (Integer,Integer)
 
-data Settings = Settings { size :: Size
-                         , mineCount :: Integer
-                         } deriving (Eq, Show)
+data Difficulty = Difficulty { size :: Size
+                             , mineCount :: Integer
+                             } deriving (Eq, Show)
 
-beginnerSettings :: Settings
-beginnerSettings = Settings (9,9) 10
-intermediateSettings :: Settings
-intermediateSettings = Settings (16,16) 40
-advancedSettings :: Settings
-advancedSettings = Settings (16,30) 99
+beginnerDifficulty :: Difficulty
+beginnerDifficulty = Difficulty (9,9) 10
+intermediateDifficulty :: Difficulty
+intermediateDifficulty = Difficulty (16,16) 40
+advancedDifficulty :: Difficulty
+advancedDifficulty = Difficulty (16,30) 99
 
 -- Return the chosen element and the remainder of the list in a tuple.
 chooseIndex :: [a] -> Integer -> (a,[a])
@@ -46,13 +46,13 @@ shuffle gen xs = chosen:shuffledRest
     (chosen,rest,newGen) = chooseRandom gen xs
     shuffledRest = shuffle newGen rest
 
-unshuffledGeneratedMines :: Settings -> [F.MineCell]
-unshuffledGeneratedMines (Settings (x,y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
+unshuffledGeneratedMines :: Difficulty -> [F.MineCell]
+unshuffledGeneratedMines (Difficulty (x,y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
   where
     paddingCount :: Integer
     paddingCount = x*y - n
 
-shuffledGeneratedMines :: (R.RandomGen r) => r -> Settings -> [F.MineCell]
+shuffledGeneratedMines :: (R.RandomGen r) => r -> Difficulty -> [F.MineCell]
 shuffledGeneratedMines gen = (shuffle gen) . unshuffledGeneratedMines
 
 gridify :: Integral i => i -> [a] -> [[a]]
@@ -63,14 +63,14 @@ gridify width xs = firstRow:(gridify width rest)
   where
     (firstRow, rest) = L.genericSplitAt width xs
 
-generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Settings -> F.MineGrid
-generateMineGridFromRandomGen gen settings@(Settings (width,_) _) = gridify width minesList
-  where minesList = shuffledGeneratedMines gen settings
+generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGrid
+generateMineGridFromRandomGen gen difficulty@(Difficulty (width,_) _) = gridify width minesList
+  where minesList = shuffledGeneratedMines gen difficulty
 
-generateMineGrid :: Maybe Int -> Settings -> IO F.MineGrid
-generateMineGrid mSeed settings = do
+generateMineGrid :: Maybe Int -> Difficulty -> IO F.MineGrid
+generateMineGrid mSeed difficulty = do
   seed <- ensureSeed mSeed
-  return $ generateMineGridFromRandomGen (makeRandomGeneratorFromSeed seed) settings
+  return $ generateMineGridFromRandomGen (makeRandomGeneratorFromSeed seed) difficulty
 
 randomSeed :: IO Int
 randomSeed = R.randomIO
@@ -87,10 +87,10 @@ main :: IO ()
 main = do putStrLn "Generator of Minesweeper Grids."
           putStrLn ""
           putStrLn "Example of a random beginner grid:"
-          randomGrid <- generateMineGrid Nothing beginnerSettings
+          randomGrid <- generateMineGrid Nothing beginnerDifficulty
           print randomGrid
           putStrLn ""
           putStrLn $ "Example of a beginner grid with seed of '" ++ (show seed) ++ "':"
-          seededGrid <- generateMineGrid (Just seed) beginnerSettings
+          seededGrid <- generateMineGrid (Just seed) beginnerDifficulty
           print seededGrid
   where seed = 42
