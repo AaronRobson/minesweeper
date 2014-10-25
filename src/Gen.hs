@@ -16,18 +16,18 @@ data Difficulty = Difficulty { size :: Size
                              , mineCount :: Integer
                              } deriving (Eq, Show)
 
-type Seed = Int
-
-data Settings = Settings { seed :: Seed
-                         , difficulty :: Difficulty
-                         }
-
 beginnerDifficulty :: Difficulty
 beginnerDifficulty = Difficulty (Size 9 9) 10
 intermediateDifficulty :: Difficulty
 intermediateDifficulty = Difficulty (Size 16 16) 40
 advancedDifficulty :: Difficulty
 advancedDifficulty = Difficulty (Size 16 30) 99
+
+type Seed = Int
+
+data Settings = Settings { seed :: Seed
+                         , difficulty :: Difficulty
+                         }
 
 -- Return the chosen element and the remainder of the list in a tuple.
 chooseIndex :: [a] -> Integer -> (a,[a])
