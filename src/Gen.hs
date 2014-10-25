@@ -14,7 +14,10 @@ instance Show Size where
 
 data Difficulty = Difficulty { size :: Size
                              , mineCount :: Integer
-                             } deriving (Eq, Show)
+                             } deriving (Eq)
+
+instance Show Difficulty where
+  show (Difficulty s m) = (show s) ++ " " ++ (show m)
 
 beginnerDifficulty :: Difficulty
 beginnerDifficulty = Difficulty (Size 9 9) 10
