@@ -17,14 +17,44 @@ data Difficulty = Difficulty { size :: Size
                              } deriving (Eq)
 
 instance Show Difficulty where
-  show (Difficulty s m) = (show s) ++ " " ++ (show m)
+  show d@(Difficulty s m) = (findNameFromDifficulty d) ++ " " ++ (show s) ++ " " ++ (show m)
 
-beginnerDifficulty :: Difficulty
-beginnerDifficulty = Difficulty (Size 9 9) 10
-intermediateDifficulty :: Difficulty
-intermediateDifficulty = Difficulty (Size 16 16) 40
-advancedDifficulty :: Difficulty
-advancedDifficulty = Difficulty (Size 16 30) 99
+difficultyDefaultName :: String
+difficultyDefaultName = "Custom"
+
+difficultyNames :: [String]
+difficultyNames =
+  [ "Beginner"
+  , "Intermediate"
+  , "Advanced"
+  ]
+
+defaultDifficulty :: Difficulty
+defaultDifficulty = Difficulty (Size 9 9) 10
+
+difficulties :: [Difficulty]
+difficulties =
+  [ defaultDifficulty
+  , Difficulty (Size 16 16) 40
+  , Difficulty (Size 16 30) 99
+  ]
+
+nameDifficultyAssociation :: [(String,Difficulty)]
+nameDifficultyAssociation = zip difficultyNames difficulties
+
+difficultyNameAssociation :: [(Difficulty,String)]
+difficultyNameAssociation = zip difficulties difficultyNames
+
+findNameFromDifficulty :: Difficulty -> String
+findNameFromDifficulty d =
+  case lookup d difficultyNameAssociation of
+    Just s -> s
+    Nothing -> difficultyDefaultName
+
+validateDifficultyFromIndexMaybe :: Integral a => a -> Maybe Difficulty
+validateDifficultyFromIndexMaybe i
+  | 0 <= i && i < L.genericLength difficulties = Just $ L.genericIndex difficulties i
+  | otherwise = Nothing
 
 type Seed = Int
 
@@ -108,10 +138,10 @@ main :: IO ()
 main = do putStrLn "Generator of Minesweeper Grids."
           putStrLn ""
           putStrLn "Example of a random beginner grid:"
-          randomGrid <- generateMineGridFromDifficulty Nothing beginnerDifficulty
+          randomGrid <- generateMineGridFromDifficulty Nothing defaultDifficulty
           print randomGrid
           putStrLn ""
           putStrLn $ "Example of a beginner grid with seed of '" ++ (show givenSeed) ++ "':"
-          seededGrid <- generateMineGridFromDifficulty (Just givenSeed) beginnerDifficulty
+          seededGrid <- generateMineGridFromDifficulty (Just givenSeed) defaultDifficulty
           print seededGrid
   where givenSeed = 42

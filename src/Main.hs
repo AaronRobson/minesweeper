@@ -1,6 +1,7 @@
 module Main
 where
 
+import qualified Data.List as L
 import qualified Text.Read as R
 
 import qualified Gen as G
@@ -12,25 +13,27 @@ chooseSettings = do
   return $ G.Settings s d
 
 validateDifficultyMaybe :: String -> Maybe G.Difficulty
-validateDifficultyMaybe d =
-  case d of
-    "1" -> Just G.beginnerDifficulty
-    "2" -> Just G.intermediateDifficulty
-    "3" -> Just G.advancedDifficulty
-    _ -> Nothing
+validateDifficultyMaybe s =
+  fmap pred (R.readMaybe s :: Maybe Integer) >>= G.validateDifficultyFromIndexMaybe
 
 chooseDifficultyMaybe :: IO (Maybe G.Difficulty)
 chooseDifficultyMaybe = do
-  putStr "Enter 1, 2 or 3 for the difficulty type: "
+  putStr $ "Enter " ++ range1BasedString ++ " for the difficulty type: "
   value <- getLine
   return $ validateDifficultyMaybe value
+  where
+    range0Based :: [Integer]
+    range0Based = [0..(pred (L.genericLength G.difficulties))]
+    range1Based = map succ range0Based
+    range1BasedString :: String
+    range1BasedString = show range1Based
 
 chooseDifficulty :: IO G.Difficulty
 chooseDifficulty = do
   mDifficulty <- chooseDifficultyMaybe
   return $ case mDifficulty of
              Just difficulty -> difficulty
-             Nothing -> G.beginnerDifficulty
+             Nothing -> G.defaultDifficulty
 
 validateSeed :: String -> Maybe G.Seed
 validateSeed s = R.readMaybe s :: Maybe G.Seed
