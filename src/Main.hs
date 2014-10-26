@@ -5,6 +5,12 @@ import qualified Text.Read as R
 
 import qualified Gen as G
 
+chooseSettings :: IO G.Settings
+chooseSettings = do
+  d <- chooseDifficulty
+  s <- chooseSeed
+  return $ G.Settings s d
+
 validateDifficultyMaybe :: String -> Maybe G.Difficulty
 validateDifficultyMaybe d =
   case d of
@@ -40,9 +46,8 @@ chooseSeed = chooseSeedMaybe >>= G.ensureSeed
 
 main :: IO ()
 main = do putStrLn "Minesweeper --- Terminal Interface."
-          difficulty <- chooseDifficulty
+          settings <- chooseSettings
           putStr "The difficulty is: "
-          print difficulty
-          seed <- chooseSeed
+          print $ G.difficulty settings
           putStr "The seed in use is: "
-          print seed
+          print $ G.seed settings
