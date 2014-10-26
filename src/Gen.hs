@@ -12,12 +12,12 @@ data Size = Size { width, height :: Integer
 instance Show Size where
   show (Size w h) = show w ++ "x" ++ show h
 
-data Difficulty = Difficulty { size :: Size
-                             , mineCount :: Integer
+data Difficulty = Difficulty { mineCount :: Integer
+                             , size :: Size
                              } deriving (Eq)
 
 instance Show Difficulty where
-  show d@(Difficulty s m) = (findNameFromDifficulty d) ++ " " ++ (show s) ++ " " ++ (show m)
+  show d@(Difficulty m s) = (findNameFromDifficulty d) ++ " " ++ (show s) ++ " " ++ (show m)
 
 difficultyDefaultName :: String
 difficultyDefaultName = "Custom"
@@ -30,13 +30,13 @@ difficultyNames =
   ]
 
 defaultDifficulty :: Difficulty
-defaultDifficulty = Difficulty (Size 9 9) 10
+defaultDifficulty = Difficulty 10 (Size 9 9)
 
 difficulties :: [Difficulty]
 difficulties =
   [ defaultDifficulty
-  , Difficulty (Size 16 16) 40
-  , Difficulty (Size 16 30) 99
+  , Difficulty 40 (Size 16 16)
+  , Difficulty 99 (Size 16 30)
   ]
 
 nameDifficultyAssociation :: [(String,Difficulty)]
@@ -90,7 +90,7 @@ shuffle gen xs = chosen:shuffledRest
     shuffledRest = shuffle newGen rest
 
 unshuffledGeneratedMines :: Difficulty -> [F.MineCell]
-unshuffledGeneratedMines (Difficulty (Size x y) n) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
+unshuffledGeneratedMines (Difficulty n (Size x y)) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
   where
     paddingCount :: Integer
     paddingCount = x*y - n
@@ -107,7 +107,7 @@ gridify w xs = firstRow:(gridify w rest)
     (firstRow, rest) = L.genericSplitAt w xs
 
 generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGrid
-generateMineGridFromRandomGen gen d@(Difficulty (Size w _) _) = gridify w minesList
+generateMineGridFromRandomGen gen d@(Difficulty _ (Size w _)) = gridify w minesList
   where minesList = shuffledGeneratedMines gen d
 
 generateMineGridFromDifficulty :: Maybe Seed -> Difficulty -> IO F.MineGrid
