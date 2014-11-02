@@ -38,15 +38,15 @@ progress g
   | otherwise = InProgress
   where
     won :: Grid -> Bool 
-    won grid = and $ map cellValid (concat grid)
+    won grid = all cellValid (concat grid)
       where
         cellValid :: GridCell -> Bool
-        cellValid gc = (mine gc) /= (Revealed == marking gc)
+        cellValid gc = mine gc /= (Revealed == marking gc)
     lost :: Grid -> Bool
-    lost grid = or $ map cellInvalid (concat grid)
+    lost grid = any cellInvalid (concat grid)
       where
         cellInvalid :: GridCell -> Bool
-        cellInvalid gc = (mine gc) == (Revealed == marking gc)
+        cellInvalid gc = mine gc == (Revealed == marking gc)
 
 finished :: Grid -> Bool
 finished g = InProgress /= progress g
@@ -54,7 +54,7 @@ finished g = InProgress /= progress g
 type Location = (Integer,Integer)
 
 numberOfMinesAround :: Grid -> Location -> Integer
-numberOfMinesAround grid (x,y) = genericLength . (filter $ locationIsMine grid) $ locationsAround
+numberOfMinesAround grid (x,y) = genericLength . filter (locationIsMine grid) $ locationsAround
   where
     locationsAround :: [Location]
     locationsAround =
@@ -96,8 +96,8 @@ main :: IO ()
 main = do putStrLn "The core functionality of the program is in this module."
           putStrLn ""
           putStr "Grid: "
-          putStrLn $ show mg
-          putStrLn $ findCellInfo ((-1),(-1))
+          print mg
+          putStrLn $ findCellInfo (-1,-1)
           putStrLn $ findCellInfo (0,0)
           putStrLn $ findCellInfo (0,1)
           putStrLn $ findCellInfo (0,1)
@@ -112,6 +112,6 @@ main = do putStrLn "The core functionality of the program is in this module."
          ]
     g = minesToGrid mg
     findCellInfo :: Location -> String
-    findCellInfo location = (show location) ++ " is: " ++ (show $ findCell g location)
+    findCellInfo location = show location ++ " is: " ++ show (findCell g location)
     numMinesAroundInfo :: Location -> String
-    numMinesAroundInfo location = (show location) ++ " has this many mines around it: " ++ (show $ numberOfMinesAround g location)
+    numMinesAroundInfo location = show location ++ " has this many mines around it: " ++ show (numberOfMinesAround g location)

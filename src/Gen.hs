@@ -2,6 +2,7 @@ module Gen
 where
 
 import qualified Data.List as L
+import qualified Data.Maybe as M
 import qualified System.Random as R
 
 import qualified Func as F
@@ -23,7 +24,7 @@ data Difficulty = Difficulty { mineCount :: Integer
                              } deriving (Eq)
 
 instance Show Difficulty where
-  show d@(Difficulty m s) = (findNameFromDifficulty d) ++ " " ++ (show s) ++ " " ++ (show m)
+  show d@(Difficulty m s) = findNameFromDifficulty d ++ " " ++ show s ++ " " ++ show m
 
 difficultyDefaultName :: String
 difficultyDefaultName = "Custom"
@@ -52,10 +53,7 @@ difficultyNameAssociation :: [(Difficulty,String)]
 difficultyNameAssociation = zip difficulties difficultyNames
 
 findNameFromDifficulty :: Difficulty -> String
-findNameFromDifficulty d =
-  case lookup d difficultyNameAssociation of
-    Just s -> s
-    Nothing -> difficultyDefaultName
+findNameFromDifficulty d = M.fromMaybe difficultyDefaultName (lookup d difficultyNameAssociation)
 
 validateDifficultyFromIndexMaybe :: Integral a => a -> Maybe Difficulty
 validateDifficultyFromIndexMaybe i
@@ -77,7 +75,7 @@ chooseIndex xs index
   where
     len = L.genericLength xs
     element = L.genericIndex xs index
-    rest = concat [before, after]
+    rest = before ++ after
     before = L.genericTake index xs
     after = L.genericDrop (succ index) xs
 
@@ -96,19 +94,19 @@ shuffle gen xs = chosen:shuffledRest
     shuffledRest = shuffle newGen rest
 
 unshuffledGeneratedMines :: Difficulty -> [F.MineCell]
-unshuffledGeneratedMines (Difficulty n (Size x y)) = concat [(L.genericReplicate paddingCount False), (L.genericReplicate n True)]
+unshuffledGeneratedMines (Difficulty n (Size x y)) = L.genericReplicate paddingCount False ++ L.genericReplicate n True
   where
     paddingCount :: Integer
     paddingCount = x*y - n
 
 shuffledGeneratedMines :: (R.RandomGen r) => r -> Difficulty -> [F.MineCell]
-shuffledGeneratedMines gen = (shuffle gen) . unshuffledGeneratedMines
+shuffledGeneratedMines gen = shuffle gen . unshuffledGeneratedMines
 
 gridify :: Integral i => i -> [a] -> [[a]]
 gridify w _
   | w <= 0 = error "Strictly positive width required."
 gridify _ [] = []
-gridify w xs = firstRow:(gridify w rest)
+gridify w xs = firstRow : gridify w rest
   where
     (firstRow, rest) = L.genericSplitAt w xs
 
@@ -147,7 +145,7 @@ main = do putStrLn "Generator of Minesweeper Grids."
           randomGrid <- generateMineGridFromDifficulty Nothing defaultDifficulty
           print randomGrid
           putStrLn ""
-          putStrLn $ "Example of a beginner grid with seed of '" ++ (show givenSeed) ++ "':"
+          putStrLn $ "Example of a beginner grid with seed of '" ++ show givenSeed ++ "':"
           seededGrid <- generateMineGridFromDifficulty (Just givenSeed) defaultDifficulty
           print seededGrid
   where givenSeed = 42

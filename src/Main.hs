@@ -3,6 +3,7 @@ where
 
 import qualified Data.List as L
 import qualified Text.Read as R
+import qualified Data.Maybe as M
 
 import qualified Gen as G
 
@@ -31,9 +32,7 @@ chooseDifficultyMaybe = do
 chooseDifficulty :: IO G.Difficulty
 chooseDifficulty = do
   mDifficulty <- chooseDifficultyMaybe
-  return $ case mDifficulty of
-             Just difficulty -> difficulty
-             Nothing -> G.defaultDifficulty
+  return $ M.fromMaybe G.defaultDifficulty mDifficulty
 
 validateSeed :: String -> Maybe G.Seed
 validateSeed s = R.readMaybe s :: Maybe G.Seed
