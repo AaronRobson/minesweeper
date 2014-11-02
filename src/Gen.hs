@@ -6,6 +6,12 @@ import qualified System.Random as R
 
 import qualified Func as F
 
+data Point = Point { pointX, pointY :: Integer
+                   } deriving (Eq)
+
+instance Show Point where
+  show (Point x y) = show x ++ "," ++ show y
+
 data Size = Size { width, height :: Integer
                  } deriving (Eq)
 
