@@ -99,8 +99,7 @@ main = do putStrLn "The core functionality of the program is in this module."
           print mg
           putStrLn $ findCellInfo (-1,-1)
           putStrLn $ findCellInfo (0,0)
-          putStrLn $ findCellInfo (0,1)
-          putStrLn $ findCellInfo (0,1)
+          putStrLn $ findCellInfo (1,1)
           putStrLn $ findCellInfo (2,2)
           putStrLn $ findCellInfo (3,3)
           putStrLn $ numMinesAroundInfo (1,1)
