@@ -2,6 +2,7 @@ module Func
 where
 
 import Data.List (genericLength, genericIndex)
+import qualified Data.Maybe as M
 import qualified Data.Default as Def -- cabal install data-default
 
 type Grid = [GridRow]
@@ -89,8 +90,7 @@ locationIsMine grid location = maybeCellIsMine cell
     cell = findCell grid location
 
 maybeCellIsMine :: Maybe GridCell -> Bool
-maybeCellIsMine (Just cell) = mine cell
-maybeCellIsMine Nothing = False
+maybeCellIsMine = M.maybe False mine
 
 main :: IO ()
 main = do putStrLn "The core functionality of the program is in this module."
