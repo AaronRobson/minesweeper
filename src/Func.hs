@@ -97,13 +97,15 @@ main = do putStrLn "The core functionality of the program is in this module."
           putStrLn ""
           putStr "Grid: "
           print mg
-          putStrLn $ findCellInfo (-1,-1)
-          putStrLn $ findCellInfo (0,0)
-          putStrLn $ findCellInfo (1,1)
-          putStrLn $ findCellInfo (2,2)
-          putStrLn $ findCellInfo (3,3)
-          putStrLn $ numMinesAroundInfo (1,1)
-          putStrLn $ numMinesAroundInfo (0,1)
+          mapM_ (putStrLn . findCellInfo) [ (-1,-1)
+                                          , (0,0)
+                                          , (1,1)
+                                          , (2,2)
+                                          , (3,3)
+                                          ]
+          mapM_ (putStrLn . numMinesAroundInfo) [ (1,1)
+                                                , (0,1)
+                                                ]
   where
     mg = [ [True,True,True]
          , [True,True,True]
