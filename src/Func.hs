@@ -2,11 +2,11 @@ module Func
 where
 
 import Data.List (genericLength, genericIndex)
+import qualified Data.Array.IArray as IA
 import qualified Data.Maybe as M
 import qualified Data.Default as Def -- cabal install data-default
 
-type Grid = [GridRow]
-type GridRow = [GridCell]
+type Grid = IA.Array (Integer,Integer) GridCell
 data GridCell = GridCell { mine :: MineCell
                          , marking :: Marking
                          } deriving (Eq, Show)
@@ -18,14 +18,14 @@ newGridCell :: MineCell -> GridCell
 newGridCell m = Def.def {mine = m}
 
 minesToGrid :: MineGrid -> Grid
-minesToGrid = (map . map) newGridCell
+minesToGrid = fmap newGridCell
 
 -- Lossy transformation.
 gridToMines :: Grid -> MineGrid
-gridToMines = (map . map) mine
+gridToMines = fmap mine
 
-type MineGrid = [MineGridRow]
-type MineGridRow = [MineCell]
+type MineGrid = IA.Array (Integer,Integer) MineCell
+
 type MineCell = Bool
 
 data Marking = Flag | QuestionMark | Normal | Revealed deriving (Eq, Show)
@@ -39,12 +39,12 @@ progress g
   | otherwise = InProgress
   where
     won :: Grid -> Bool 
-    won grid = all cellValid (concat grid)
+    won grid = all cellValid $ IA.elems grid
       where
         cellValid :: GridCell -> Bool
         cellValid gc = mine gc /= (Revealed == marking gc)
     lost :: Grid -> Bool
-    lost grid = any cellInvalid (concat grid)
+    lost grid = any cellInvalid $ IA.elems grid
       where
         cellInvalid :: GridCell -> Bool
         cellInvalid gc = mine gc == (Revealed == marking gc)
@@ -73,16 +73,9 @@ numberOfMinesAround grid (x,y) = genericLength . filter (locationIsMine grid) $ 
       ]
 
 findCell :: Grid -> Location -> Maybe GridCell
-findCell grid (x,y) = findRow >>= findCellInRow
-  where
-    findRow :: Maybe GridRow
-    findRow
-      | (0 <= y) && (y < genericLength grid) = Just (genericIndex grid y)
-      | otherwise = Nothing
-    findCellInRow :: GridRow -> Maybe GridCell
-    findCellInRow gridRow
-      | (0 <= x) && (x < genericLength gridRow) = Just (genericIndex gridRow x)
-      | otherwise = Nothing
+findCell grid (x,y) = (if (x,y) `elem` IA.indices grid
+                         then Just $ grid IA.! (x,y)
+                         else Nothing)
 
 locationIsMine :: Grid -> Location -> Bool
 locationIsMine grid location = maybeCellIsMine cell
@@ -107,10 +100,14 @@ main = do putStrLn "The core functionality of the program is in this module."
                                                 , (0,1)
                                                 ]
   where
-    mg = [ [True,True,True]
-         , [True,True,True]
-         , [True,True,True]
-         ]
+    mg :: MineGrid
+    mg = IA.listArray
+           ((0,0),(2,2))
+           [ True,True,True
+           , True,True,True
+           , True,True,True
+           ]
+    g :: Grid
     g = minesToGrid mg
     findCellInfo :: Location -> String
     findCellInfo location = show location ++ " is: " ++ show (findCell g location)

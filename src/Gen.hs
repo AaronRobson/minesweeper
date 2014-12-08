@@ -4,6 +4,7 @@ where
 import qualified Data.List as L
 import qualified Data.Maybe as M
 import qualified System.Random as R
+import qualified Data.Array.IArray as IA
 
 import qualified Func as F
 
@@ -102,16 +103,8 @@ unshuffledGeneratedMines (Difficulty n (Size x y)) = L.genericReplicate paddingC
 shuffledGeneratedMines :: (R.RandomGen r) => r -> Difficulty -> [F.MineCell]
 shuffledGeneratedMines gen = shuffle gen . unshuffledGeneratedMines
 
-gridify :: Size -> [a] -> [[a]]
-gridify s@(Size w h) _
-  | w <= 0 = error "Strictly positive width required."
-gridify _ [] = []
-gridify s@(Size w h) xs = firstRow : gridify s rest
-  where
-    (firstRow, rest) = L.genericSplitAt w xs
-
 generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGrid
-generateMineGridFromRandomGen gen d@(Difficulty _ s) = gridify s minesList
+generateMineGridFromRandomGen gen d@(Difficulty _ s@(Size w h)) = IA.listArray ((0,0),(pred w,pred h)) minesList
   where minesList = shuffledGeneratedMines gen d
 
 generateMineGridFromDifficulty :: Maybe Seed -> Difficulty -> IO F.MineGrid
@@ -143,9 +136,9 @@ main = do putStrLn "Generator of Minesweeper Grids."
           putStrLn ""
           putStrLn "Example of a random beginner grid:"
           randomGrid <- generateMineGridFromDifficulty Nothing defaultDifficulty
-          print randomGrid
+          print $ IA.elems randomGrid
           putStrLn ""
           putStrLn $ "Example of a beginner grid with seed of '" ++ show givenSeed ++ "':"
           seededGrid <- generateMineGridFromDifficulty (Just givenSeed) defaultDifficulty
-          print seededGrid
+          print $ IA.elems seededGrid
   where givenSeed = 42
