@@ -102,16 +102,16 @@ unshuffledGeneratedMines (Difficulty n (Size x y)) = L.genericReplicate paddingC
 shuffledGeneratedMines :: (R.RandomGen r) => r -> Difficulty -> [F.MineCell]
 shuffledGeneratedMines gen = shuffle gen . unshuffledGeneratedMines
 
-gridify :: Integral i => i -> [a] -> [[a]]
-gridify w _
+gridify :: Size -> [a] -> [[a]]
+gridify s@(Size w h) _
   | w <= 0 = error "Strictly positive width required."
 gridify _ [] = []
-gridify w xs = firstRow : gridify w rest
+gridify s@(Size w h) xs = firstRow : gridify s rest
   where
     (firstRow, rest) = L.genericSplitAt w xs
 
 generateMineGridFromRandomGen :: (R.RandomGen r) => r -> Difficulty -> F.MineGrid
-generateMineGridFromRandomGen gen d@(Difficulty _ (Size w _)) = gridify w minesList
+generateMineGridFromRandomGen gen d@(Difficulty _ s) = gridify s minesList
   where minesList = shuffledGeneratedMines gen d
 
 generateMineGridFromDifficulty :: Maybe Seed -> Difficulty -> IO F.MineGrid
